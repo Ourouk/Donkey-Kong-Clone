@@ -2,25 +2,23 @@
 
 PRESENTATION=presentation
 
+
+BUILD_FOLDER = build
 CC = g++ -DSUN -I$(PRESENTATION)
-OBJS = $(PRESENTATION)/presentation.o 
-PROGRAMS = dkjr
+OBJS = $(BUILD_FOLDER)/presentation.o 
+
 
 ALL: $(PROGRAMS)
 
-dkjr:	dkjr.cpp $(OBJS)
+$(BUILD_FOLDER)/dkjr:	dkjr.cpp $(OBJS)
 	echo Creation de dkjr...
-	$(CC) dkjr.cpp -o dkjr $(OBJS)  -lrt -lpthread -lSDL
+	$(CC) dkjr.cpp -o $(BUILD_FOLDER)/dkjr $(OBJS)  -lrt -lpthread -lSDL
 
-$(PRESENTATION)/presentation.o:	$(PRESENTATION)/presentation.c $(PRESENTATION)/presentation.h
+$(BUILD_FOLDER)/presentation.o:	$(PRESENTATION)/presentation.c $(PRESENTATION)/presentation.h
 		echo Creation de presentation.o ...
-		$(CC) -c $(PRESENTATION)/presentation.c
-		mv presentation.o $(PRESENTATION)
+		$(CC) -c $(PRESENTATION)/presentation.c -o $(BUILD_FOLDER)/presentation.o
 
 clean:
-	@rm -f $(OBJS) core
-
-clobber:	clean
-	@rm -f tags $(PROGRAMS)   
+	@rm -r BUILD_FOLDER/
  
 

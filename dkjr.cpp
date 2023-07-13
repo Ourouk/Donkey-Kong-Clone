@@ -7,12 +7,15 @@
 #include <SDL/SDL.h>
 #include "./presentation/presentation.h"
 
+
+//Define the different object of the game
 #define VIDE        		0
 #define DKJR       		1
 #define CROCO       		2
 #define CORBEAU     		3
 #define CLE 			4
 
+//Define different type of events
 #define AUCUN_EVENEMENT    	0
 
 #define LIBRE_BAS		1
@@ -120,9 +123,40 @@ int main(int argc, char* argv[])
 	afficherEchec(1);
 	afficherScore(1999);
 
+	// Initialise mutex
+	int res = NULL;
+	res = pthread_mutex_init(&mutexGrilleJeu, NULL);
+	if(res != 0)
+	{
+		printf("Erreur lors de l'initialisation du mutexGrilleJeu\n");
+		exit(1);
+	}
+	res = pthread_mutex_init(&mutexDK, NULL);
+	if(res != 0)
+	{
+		printf("Erreur lors de l'initialisation du mutexDK\n");
+		exit(1);
+	}
+	res = pthread_mutex_init(&mutexEvenement, NULL);
+	if(res != 0)
+	{
+		printf("Erreur lors de l'initialisation du mutexEvenement\n");
+		exit(1);
+	}
+	res = pthread_mutex_init(&mutexScore, NULL);
+	if(res != 0)
+	{
+		printf("Erreur lors de l'initialisation du mutexScore\n");
+		exit(1);
+	}
+
+	pthread_create(&threadCle,NULL,FctThreadCle,NULL);
+
 	while (1)
 	{
 	    evt = lireEvenement();
+		pthread_create(&threadEvenements, NULL, FctThreadEvenements, NULL);
+		pthread_create(&threadCle, NULL, FctThreadCle, NULL);
 
 	    switch (evt)
 	    {
@@ -178,4 +212,51 @@ void afficherGrilleJeu()
    }
 
    printf("\n");   
+}
+
+
+void* FctThreadEvenements(void *){
+	pthread_mutex_lock(&mutexEvenement);
+	switch(evenement)
+
+	pthread_mutex_unlock(&mutexEvenement);
+
+}
+void* FctThreadCle(void *){
+	char posKey = 0;
+	while(1)
+	{
+		pthread_mutex_lock(&mutexGrilleJeu); //lock the rest of the program during this call
+			if(posKey == 0) //if the key is at the end of the line
+			{
+				grilleJeu[0][1].type = CLE; //add the key
+			}else
+			{
+				grilleJeu[0][1].type = VIDE; //remove the key
+
+			}
+			posKey = (posKey+1)%4; //must be lower than 4
+			afficherCle(posKey+1); //permit to change the sprite of the key
+			nanosleep((const struct timespec[]){{0, 700000000L}}, NULL); //wait 0.7s
+			effacerCarres(3,12,2,3); //remove the sprite of the key
+		pthread_mutex_unlock(&mutexGrilleJeu);
+	}
+}
+void* FctThreadDK(void *){
+
+}
+void* FctThreadDKJr(void *){
+
+}
+void* FctThreadScore(void *){
+
+}
+void* FctThreadEnnemis(void *){
+
+}
+void* FctThreadCorbeau(void *){
+
+}
+void* FctThreadCroco(void *){
+
 }
